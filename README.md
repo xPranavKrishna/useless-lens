@@ -35,6 +35,12 @@ top to bottom on a phone, out of pure boredom turned into a small project.
 - **camera** plugin — live preview, frame brightness sampling, torch control
 - Built and shipped without ever opening a laptop
 
+## Just want the app?
+
+I've also uploaded the built APK directly in this repo — because let's be
+honest, who wants to *build* useless code themselves. Just grab the APK
+and install it.
+
 ## Building it yourself
 
 1. Fork or clone this repo
