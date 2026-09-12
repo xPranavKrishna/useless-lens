@@ -17,7 +17,6 @@ jobs:
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
-          flutter-version: '3.24.0'
           channel: 'stable'
 
       - name: Create fresh Flutter project scaffold
@@ -47,6 +46,29 @@ jobs:
                   f.write(content)
           EOF
 
+      - name: Force compileSdk/targetSdk to 35
+        working-directory: useless_lens
+        run: |
+          python3 - <<'EOF'
+          import re
+          path = "android/app/build.gradle.kts"
+          try:
+              with open(path) as f:
+                  content = f.read()
+              content = re.sub(r'compileSdk\s*=\s*flutter\.compileSdkVersion', 'compileSdk = 35', content)
+              content = re.sub(r'targetSdk\s*=\s*flutter\.targetSdkVersion', 'targetSdk = 35', content)
+              with open(path, "w") as f:
+                  f.write(content)
+          except FileNotFoundError:
+              path = "android/app/build.gradle"
+              with open(path) as f:
+                  content = f.read()
+              content = re.sub(r'compileSdk(Version)?\s+flutter\.compileSdkVersion', 'compileSdk 35', content)
+              content = re.sub(r'targetSdkVersion\s+flutter\.targetSdkVersion', 'targetSdkVersion 35', content)
+              with open(path, "w") as f:
+                  f.write(content)
+          EOF
+
       - name: Get dependencies
         working-directory: useless_lens
         run: flutter pub get
@@ -60,3 +82,4 @@ jobs:
         with:
           name: useless-lens-apk
           path: useless_lens/build/app/outputs/flutter-apk/app-release.apk
+          
