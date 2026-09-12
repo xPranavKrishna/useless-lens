@@ -55,6 +55,54 @@ jobs:
           try:
               with open(path) as f:
                   content = f.read()
+              content = re.sub(r'compileSdk\s*=\s*flutter\.compileSdkVersion', 'compileSdk = 36', content)
+              content = re.sub(r'targetSdk\s*=\s*flutter\.targetSdkVersion', 'targetSdk = 36', content)
+              with open(path, "w") as f:
+                  f.write(content)
+          except FileNotFoundError:
+              path = "android/app/build.gradle"
+              with open(path) as f:
+                  content = f.read()
+              content = re.sub(r'compileSdk(Version)?\s+flutter\.compileSdkVersion', 'compileSdk 36', content)
+              content = re.sub(r'targetSdkVersion\s+flutter\.targetSdkVersion', 'targetSdkVersion 36', content)
+              with open(path, "w") as f:
+                  f.write(content)
+          EOF
+
+      - name: Get dependencies
+        working-directory: useless_lens
+        run: flutter pub get
+
+      - name: Build release APK
+        working-directory: useless_lens
+        run: flutter build apk --release
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: useless-lens-apk
+          path: useless_lens/build/app/outputs/flutter-apk/app-release.apk
+              content = f.read()
+          perms = (
+              '    <uses-permission android:name="android.permission.CAMERA"/>\n'
+              '    <uses-feature android:name="android.hardware.camera" android:required="true"/>\n'
+              '    <uses-feature android:name="android.hardware.camera.flash" android:required="false"/>\n'
+          )
+          if 'android.permission.CAMERA' not in content:
+              content = re.sub(r'(<manifest[^>]*>)', r'\1\n' + perms, content, count=1)
+              with open(path, "w") as f:
+                  f.write(content)
+          EOF
+
+      - name: Force compileSdk/targetSdk to 35
+        working-directory: useless_lens
+        run: |
+          python3 - <<'EOF'
+          import re
+          path = "android/app/build.gradle.kts"
+          try:
+              with open(path) as f:
+                  content = f.read()
               content = re.sub(r'compileSdk\s*=\s*flutter\.compileSdkVersion', 'compileSdk = 35', content)
               content = re.sub(r'targetSdk\s*=\s*flutter\.targetSdkVersion', 'targetSdk = 35', content)
               with open(path, "w") as f:
